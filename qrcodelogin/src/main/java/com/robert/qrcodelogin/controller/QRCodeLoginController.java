@@ -161,6 +161,53 @@ public class QRCodeLoginController {
         }
         return loginResult;
     }
+
+    /**
+     * @Author: zhangyapo
+     * @Date: 2018/06/27 0010 18:00
+     * @Description: 兼容不支持websocket浏览器的长轮询方式
+     * @param:
+     * @return:
+     */
+    @ApiOperation(value = "兼容不支持websocket浏览器的长轮询方式", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/qrcode/longpolling/{token}", method = RequestMethod.GET)
+    public int longpolling(@PathVariable String token) throws Exception {
+        int code = 0;
+        try {
+            Thread.sleep(5000);
+            //201:app授权成功，202：扫码完成(提示app确认)，203：二维码失效
+            //1.判断二维码是否失效
+            if (isQRCodeExpired(token)) {
+                code = 203;//二维码失效
+                return code;
+            }
+            //2.判断是否扫码完成
+            QRCodeUser user = loginUsers.get(token);
+            if (user == null) {
+                code = 408;
+                return code;
+            }
+            if (user != null) {
+                String username = user.getUsername();
+                if (username != null && !username.equals("") && !user.getAuthorize()) {
+                    code = 202;//扫码完成
+                    return code;
+                }
+            }
+            //3.判断是否授权成功
+            if (user != null) {
+                String username = user.getUsername();
+                if (username != null && !username.equals("") && user.getAuthorize()) {
+                    code = 201;//授权成功
+                    return code;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("生成二维码失败!");
+            throw new RuntimeException("生成二维码失败!");
+        }
+        return code;
+    }
     /**
      * @Author: zhangyapo
      * @Date: 2018/06/27 0010 18:00
@@ -174,6 +221,27 @@ public class QRCodeLoginController {
             String otoken = code.getToken();
             if (otoken.equals(token)) {
                 result = Boolean.TRUE;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @Author: zhangyapo
+     * @Date: 2018/06/27 0010 18:00
+     * @Description: 验证二维码是否过期
+     * @param:token
+     * @return:boolean
+     */
+    private Boolean isQRCodeExpired(String token) {
+        Boolean result = Boolean.FALSE;
+        for (QRCodeToken code : QRCodeLoginController.tokens) {
+            String otoken = code.getToken();
+            if (otoken.equals(token)) {
+                long expireTime = code.getExpireTime();
+                if (expireTime < System.currentTimeMillis()) {
+                    result = Boolean.TRUE;
+                }
             }
         }
         return result;

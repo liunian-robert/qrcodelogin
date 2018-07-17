@@ -38,10 +38,11 @@ public class Swagger2Config extends WebMvcConfigurationSupport{
         ParameterBuilder tokenPar = new ParameterBuilder();
         List<Parameter> pars = new ArrayList<Parameter>();
         //http header加额外请求头进行一些验证
+        /*
         tokenPar.name("token").description("权限token,json字符串,{\"projectId\":\"0\",\"epId\":\"923\"}").
                 modelRef(new ModelRef("string")).parameterType("header").
                 required(false).build();
-        pars.add(tokenPar.build());
+        pars.add(tokenPar.build());*/
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
