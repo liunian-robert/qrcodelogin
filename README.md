@@ -9,8 +9,10 @@
 
 3.App进行扫码,弹出确认登录界面
 
-4.App弹出是否确认登录，
+4.App弹出是否确认登录
+
 ①　一直未确认登录，二维码失效，web端显示二维码失效页面
+
 ②　确认登录：
 
 1)则app携带二维码唯一标识对当前app登录用户进行授权(授权web端进行登录)
@@ -19,5 +21,5 @@
 
 具体流程图如下：
 
-![image](https://github.com/872822645/danxuankuangDemo/blob/master/1.jpg)
+![image](https://github.com/liunian-robert/qrcodelogin/blob/master/qrcodelogin.png)
 
