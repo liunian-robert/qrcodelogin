@@ -19,5 +19,5 @@
 
 具体流程图如下：
 
-![image](https://github.com/872822645/danxuankuangDemo/blob/master/1.jpg)
+![image](https://github.com/liunian-robert/qrcodelogin/blob/master/qrcodelogin.png)
 
