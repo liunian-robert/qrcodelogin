@@ -83,6 +83,11 @@ public class QRCodeLoginController {
         try {
             if (isToken(token)) {
                 QRCodeLogin qrcodeLogin = QRCodeLogin.getWebSocketMap().get(token);
+                if (isQRCodeExpired(token)){
+                    qrcodeLogin.sendMessage("203");
+                    qrcodeLogin.setPushed(Boolean.TRUE);
+                    throw  new RuntimeException("二维码失效");
+                }
                 //1.扫描二维码与token进行绑定
                 QRCodeUser qrCodeUser = new QRCodeUser();
                 String username = (String)request.getSession().getAttribute("username");
@@ -113,6 +118,11 @@ public class QRCodeLoginController {
         try {
             if (isToken(token)) {
                 QRCodeLogin qrcodeLogin = QRCodeLogin.getWebSocketMap().get(token);
+                if (isQRCodeExpired(token)){
+                    qrcodeLogin.sendMessage("203");
+                    qrcodeLogin.setPushed(Boolean.TRUE);
+                    throw  new RuntimeException("二维码失效");
+                }
                 // 3.app对该用户授权
                 QRCodeUser qrCodeUser = new QRCodeUser();
                 String username = (String)request.getSession().getAttribute("username");
