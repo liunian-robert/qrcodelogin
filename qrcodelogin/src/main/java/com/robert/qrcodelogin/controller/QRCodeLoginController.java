@@ -86,6 +86,7 @@ public class QRCodeLoginController {
                 if (isQRCodeExpired(token)){
                     qrcodeLogin.sendMessage("203");
                     qrcodeLogin.setPushed(Boolean.TRUE);
+                    tokens.remove(token);
                     throw  new RuntimeException("二维码失效");
                 }
                 //1.扫描二维码与token进行绑定
@@ -108,6 +109,29 @@ public class QRCodeLoginController {
     /**
      * @Author: zhangyapo
      * @Date: 2018/06/27 0010 18:00
+     * @Description: app扫描二维码后点击取消
+     * @param:
+     * @return:
+     */
+    @ApiOperation(value = "app扫描二维码后点击取消", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping("/qrcode/cancle/{token}")
+    public Boolean cancleQRCodeLogin(HttpServletRequest request, @PathVariable("token") String token) throws Exception {
+        try {
+            if (isToken(token)) {
+                QRCodeLogin qrcodeLogin = QRCodeLogin.getWebSocketMap().get(token);
+                loginUsers.remove(token);
+                qrcodeLogin.sendMessage("203");
+                qrcodeLogin.setPushed(Boolean.TRUE);
+                tokens.remove(token);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("app取消登录失败!");
+        }
+        return Boolean.TRUE;
+    }
+    /**
+     * @Author: zhangyapo
+     * @Date: 2018/06/27 0010 18:00
      * @Description: app扫描二维码点击确定进行用户授权
      * @param:
      * @return:
@@ -121,6 +145,7 @@ public class QRCodeLoginController {
                 if (isQRCodeExpired(token)){
                     qrcodeLogin.sendMessage("203");
                     qrcodeLogin.setPushed(Boolean.TRUE);
+                    tokens.remove(token);
                     throw  new RuntimeException("二维码失效");
                 }
                 // 3.app对该用户授权
