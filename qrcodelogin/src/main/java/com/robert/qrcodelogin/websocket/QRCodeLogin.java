@@ -12,6 +12,7 @@ package com.robert.qrcodelogin.websocket;
  */
 
 import com.robert.qrcodelogin.common.QRCodeExpiredTask;
+import com.sun.jersey.client.impl.CopyOnWriteHashMap;
 import org.apache.log4j.Logger;
 
 import javax.websocket.*;
@@ -26,7 +27,7 @@ public class QRCodeLogin {
     //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
     //concurrent包的线程安全Set，用来存放每个客户端对应的MyWebSocket对象。若要实现服务端与单一客户端通信的话，可以使用Map来存放，其中Key可以为用户标识
-    private static ConcurrentHashMap<String, QRCodeLogin> webSocketMap = new ConcurrentHashMap<String, QRCodeLogin>();
+    private static CopyOnWriteHashMap<String, QRCodeLogin> webSocketMap = new CopyOnWriteHashMap<String, QRCodeLogin>();
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
     //判断二维码失效的定时器
@@ -34,7 +35,7 @@ public class QRCodeLogin {
     //是否已经向前端推送了二维码失效通知
     private Boolean isPushed = Boolean.FALSE;
     private Logger logger = Logger.getLogger(QRCodeLogin.class);
-    public static ConcurrentHashMap<String, QRCodeLogin> getWebSocketMap() {
+    public static CopyOnWriteHashMap<String, QRCodeLogin> getWebSocketMap() {
         return webSocketMap;
     }
     //消息说明：201:app授权成功，202：扫码完成(提示app确认)，203：二维码失效
