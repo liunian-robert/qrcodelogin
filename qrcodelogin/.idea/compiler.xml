@@ -9,5 +9,8 @@
         <module name="qrcodelogin" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="qrcodelogin" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>

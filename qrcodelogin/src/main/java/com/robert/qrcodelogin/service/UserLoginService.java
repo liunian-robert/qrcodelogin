@@ -12,5 +12,5 @@ import java.util.List;
  */
 public interface UserLoginService {
 
-    List<Integer> login (User user) throws Exception;
+    List<Integer> login(User user) throws Exception;
 }

@@ -29,10 +29,11 @@ public class QRCodeExpiredTask extends TimerTask implements Cloneable {
         if(isQRCodeExpired(token)) {//二维码失效
             QRCodeLogin qrcodeLogin = QRCodeLogin.getWebSocketMap().get(token);
             try {
-                if (qrcodeLogin!=null&&!qrcodeLogin.getPushed()){
+                //发送一次就不再发送失效通知
+                if (!qrcodeLogin.getPushed()){
                     qrcodeLogin.sendMessage("203");
                     qrcodeLogin.setPushed(Boolean.TRUE);
-                    setQRCodeExpired(token);
+                    QRCodeLoginController.tokens.remove(token);
                 }
             } catch (IOException e) {
                 logger.error("通知二维码失效失败!");
@@ -56,26 +57,6 @@ public class QRCodeExpiredTask extends TimerTask implements Cloneable {
                 if (expireTime < System.currentTimeMillis()) {
                     result = Boolean.TRUE;
                 }
-            }
-        }
-        return result;
-    }
-
-    /**
-     * @Author: zhangyapo
-     * @Date: 2018/06/27 0010 18:00
-     * @Description: 设置二维码失效
-     * @param:token
-     * @return:boolean
-     */
-    private Boolean setQRCodeExpired(String token) {
-        Boolean result = Boolean.FALSE;
-        for (QRCodeToken code : QRCodeLoginController.tokens) {
-            String otoken = code.getToken();
-            if (otoken.equals(token)) {
-                code.setExpireTime(System.currentTimeMillis()-1);
-                result = Boolean.TRUE;
-                break;
             }
         }
         return result;
