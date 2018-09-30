@@ -90,6 +90,7 @@ public class QRCodeLogin {
     @OnClose
     public void onClose(){
         webSocketMap.remove(this);  //从set中删除
+        System.out.println("有一连接关闭！");
         logger.info("有一连接关闭！");
     }
 
@@ -111,6 +112,7 @@ public class QRCodeLogin {
                     if (qrcodeLogin != null) {
                         qrcodeLogin.getTimer().cancel();
                         qrcodeLogin.setPushed(Boolean.TRUE);
+                        qrcodeLogin.getSession().close();
                     }
                     logger.info("连接关闭成功!");
                 } catch (Exception e) {
