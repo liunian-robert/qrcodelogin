@@ -23,5 +23,5 @@
 
 具体流程图如下：
 
-![image](https://github.com/liunian-robert/qrcodelogin/blob/master/qrcodelogin.png)
+![image](https://github.com/liunian-robert/qrcodelogin/blob/master/qrcodelogin/%E4%BA%8C%E7%BB%B4%E7%A0%81%E6%89%AB%E6%8F%8F%E7%99%BB%E5%BD%95.png)
 
