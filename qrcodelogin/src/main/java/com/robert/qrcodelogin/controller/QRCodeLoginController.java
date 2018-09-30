@@ -10,6 +10,7 @@ import com.robert.qrcodelogin.common.QRCodeUtil;
 import com.robert.qrcodelogin.common.config.QrcodeLoginConfig;
 import com.robert.qrcodelogin.service.UserLoginService;
 import com.robert.qrcodelogin.websocket.QRCodeLogin;
+import com.sun.jersey.client.impl.CopyOnWriteHashMap;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang.StringUtils;
@@ -41,7 +42,7 @@ public class QRCodeLoginController {
     private static final Integer EXPIRED_TIME = 1;
     public static CopyOnWriteArraySet<QRCodeToken> tokens = new CopyOnWriteArraySet<QRCodeToken>();
     //存储toke绑定的用户
-    public static ConcurrentHashMap<String,QRCodeUser> loginUsers = new ConcurrentHashMap<String,QRCodeUser>();
+    public static CopyOnWriteHashMap<String,QRCodeUser> loginUsers = new CopyOnWriteHashMap<String,QRCodeUser>();
     @Resource
     private UserLoginService userLoginService;
     @Autowired

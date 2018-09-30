@@ -30,10 +30,11 @@ public class QRCodeExpiredTask extends TimerTask implements Cloneable {
             QRCodeLogin qrcodeLogin = QRCodeLogin.getWebSocketMap().get(token);
             try {
                 //发送一次就不再发送失效通知
-                if (!qrcodeLogin.getPushed()){
+                if (qrcodeLogin != null && !qrcodeLogin.getPushed()){
                     qrcodeLogin.sendMessage("203");
                     qrcodeLogin.setPushed(Boolean.TRUE);
                     QRCodeLoginController.tokens.remove(token);
+                    qrcodeLogin.getSession().close();
                 }
             } catch (IOException e) {
                 logger.error("通知二维码失效失败!");

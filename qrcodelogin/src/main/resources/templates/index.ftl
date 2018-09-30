@@ -46,6 +46,8 @@
             }
             if(event.data=='203') {
                 alert("二维码失效");
+                //失效后关闭当前websocket连接(此处不能后端关闭，因为在关闭前需要页面显示失效通知信息)
+                websocket.send("close#"+token);
                 $.get("http://localhost:8080/qrcodelogin/rest/qrcodelogin/qrcode", function(data, status) {
                     $("#qrcode").attr("src","data:image/png;base64,"+data.base64Qrcode);
                     if ('WebSocket' in window) {//websocket方式
