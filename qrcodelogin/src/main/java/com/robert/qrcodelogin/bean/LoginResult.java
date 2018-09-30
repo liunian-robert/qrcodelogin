@@ -6,8 +6,8 @@ import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
- * User: qijun
- * Email: 18353367683@163.com
+ * User: zhangyapo
+ * Email: 15221971705@163.com
  * Date: 2017-10-12 13:44
  * Version: 1.0.0
  * Description:登录成功后返回的数据

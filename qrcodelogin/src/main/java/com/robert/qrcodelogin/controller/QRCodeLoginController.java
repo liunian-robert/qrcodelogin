@@ -7,16 +7,20 @@ import com.robert.qrcodelogin.bean.QRCodeToken;
 import com.robert.qrcodelogin.bean.QRCodeUser;
 import com.robert.qrcodelogin.bean.User;
 import com.robert.qrcodelogin.common.QRCodeUtil;
+import com.robert.qrcodelogin.common.config.QrcodeLoginConfig;
 import com.robert.qrcodelogin.service.UserLoginService;
 import com.robert.qrcodelogin.websocket.QRCodeLogin;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +44,8 @@ public class QRCodeLoginController {
     public static ConcurrentHashMap<String,QRCodeUser> loginUsers = new ConcurrentHashMap<String,QRCodeUser>();
     @Resource
     private UserLoginService userLoginService;
+    @Autowired
+    QrcodeLoginConfig qrcodeLoginConfig;
     /**
      * @Author: zhangyapo
      * @Date: 2018/06/27 0010 18:00
@@ -57,7 +63,7 @@ public class QRCodeLoginController {
             //二维码失效时间
             token.setExpireTime(System.currentTimeMillis()+ EXPIRED_TIME*60*1000);
             tokens.add(token);
-            String mylubanurl = "http://localhost:8080/qrcodelogin/rest/qrcodelogin/qrcode/authorize/";
+            String mylubanurl = qrcodeLoginConfig.getLogin_scan_url();
             String data = mylubanurl+uuid;
             String base64 = QRCodeUtil.toBase64WithLogo(data, 280, 280);
             QRCode qrcode = new QRCode();
@@ -79,19 +85,36 @@ public class QRCodeLoginController {
      */
     @ApiOperation(value = "app扫描二维码", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @GetMapping("/qrcode/scan/{token}")
-    public Boolean scanQRCode(HttpServletRequest request, @PathVariable("token") String token) throws Exception {
+    public String scanQRCode(HttpServletRequest request,HttpServletResponse response, @PathVariable("token") String token) throws Exception {
         try {
+            String client = request.getHeader("lbclient");
+            if (StringUtils.isEmpty(client)) {//非app扫描
+                String userAgent = request.getHeader("user-agent").toLowerCase();
+                if (StringUtils.isEmpty(userAgent)) {
+                    throw new Exception("非法扫描!");
+                }
+                if(userAgent.indexOf("android") != -1){//安卓
+                    String thirdQrcodeLoginUrl = qrcodeLoginConfig.getThird_android_scan_Url();
+                    response.sendRedirect(thirdQrcodeLoginUrl);
+                } else if(userAgent.indexOf("iphone") != -1 || userAgent.indexOf("ipad") != -1 || userAgent.indexOf("ipod") != -1){//苹果
+                    String thirdQrcodeLoginUrl = qrcodeLoginConfig.getThird_iphone_scan_Url();
+                    response.sendRedirect(thirdQrcodeLoginUrl);
+                } else {
+                    throw new Exception("非法扫描!");
+                }
+                return null;
+            }
             if (isToken(token)) {
                 QRCodeLogin qrcodeLogin = QRCodeLogin.getWebSocketMap().get(token);
-                if (isQRCodeExpired(token)){
+                if (isQRCodeExpired(token) && qrcodeLogin != null){
                     qrcodeLogin.sendMessage("203");
                     qrcodeLogin.setPushed(Boolean.TRUE);
-                    tokens.remove(token);
-                    throw  new RuntimeException("二维码失效");
+                    setQRCodeExpired(token);
+                    throw  new Exception("二维码失效");
                 }
                 //1.扫描二维码与token进行绑定
                 QRCodeUser qrCodeUser = new QRCodeUser();
-                String username = (String)request.getSession().getAttribute("username");
+                String username = "";//填写系统对应的用户名;
                 qrCodeUser.setUsername(username);
                 qrCodeUser.setAuthorize(false);
                 loginUsers.put(token,qrCodeUser);
@@ -101,9 +124,11 @@ public class QRCodeLoginController {
                 }
             }
         } catch (Exception e) {
-            logger.error("扫描二维码失败!");
+            e.printStackTrace();
+            throw new Exception("扫描二维码失败!");
         }
-        return Boolean.TRUE;
+        String authUrl = qrcodeLoginConfig.getServer_url()+"rest/qrcodelogin/qrcode/authorize/" + token;
+        return authUrl;
     }
 
     /**
@@ -277,6 +302,26 @@ public class QRCodeLoginController {
                 if (expireTime < System.currentTimeMillis()) {
                     result = Boolean.TRUE;
                 }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @Author: zhangyapo
+     * @Date: 2018/06/27 0010 18:00
+     * @Description: 根据token查找对应的二维码
+     * @param:token
+     * @return:boolean
+     */
+    private Boolean setQRCodeExpired(String token) {
+        Boolean result = Boolean.FALSE;
+        for (QRCodeToken code : QRCodeLoginController.tokens) {
+            String otoken = code.getToken();
+            if (otoken.equals(token)) {
+                code.setExpireTime(System.currentTimeMillis()-1);
+                result = Boolean.TRUE;
+                break;
             }
         }
         return result;
