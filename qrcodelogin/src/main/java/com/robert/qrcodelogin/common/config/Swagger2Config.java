@@ -19,13 +19,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
- * Created with IntelliJ IDEA.
- * User: hearain
- * Email: 18353367683@163.com
- * Date: 2017-06-28 20:54
- * Version: 1.0.0
- * Description:SpringMVC集成Swagger
+ * @创建人: zhangyapo
+ * @创建时间: 2018/9/30 16:38
+ * @描述:
  */
 @EnableWebMvc
 @EnableSwagger2

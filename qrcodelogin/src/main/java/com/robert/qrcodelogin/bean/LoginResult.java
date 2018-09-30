@@ -4,13 +4,11 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 
+
 /**
- * Created with IntelliJ IDEA.
- * User: zhangyapo
- * Email: 15221971705@163.com
- * Date: 2017-10-12 13:44
- * Version: 1.0.0
- * Description:登录成功后返回的数据
+ * @创建人: zhangyapo
+ * @创建时间: 2018/9/30 16:38
+ * @描述:
  */
 public class LoginResult {
 

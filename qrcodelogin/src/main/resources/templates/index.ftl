@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>myluban扫码登录Demo</title>
+    <title>二维码扫码登录</title>
     　　　<meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport' />
     　　　<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
