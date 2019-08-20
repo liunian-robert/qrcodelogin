@@ -25,7 +25,8 @@
         });
     });
     function startWebsocket(token) {
-        var websocket = new WebSocket("ws://localhost:8080/qrcodelogin/loginpage/" +token);
+        var websocket = new WebSocket("ws://localhost:8000/qrcodelogin/loginpage?token="+token);
+        websocket.a
         //连接发生错误的回调方法
         websocket.onerror = function () {
             alert("WebSocket连接发生错误");
@@ -38,6 +39,7 @@
 
         //接收到消息的回调方法
         websocket.onmessage = function (event) {
+            alert(event.data);
             if(event.data =='201'){
                 weblogin(token,true);
             }

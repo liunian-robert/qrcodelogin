@@ -13,18 +13,19 @@ package com.robert.qrcodelogin.websocket;
 
 import com.robert.qrcodelogin.common.QRCodeExpiredTask;
 import com.sun.jersey.client.impl.CopyOnWriteHashMap;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.timeout.IdleStateEvent;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
+import org.yeauty.annotation.*;
+import org.yeauty.pojo.ParameterMap;
+import org.yeauty.pojo.Session;
 
-import javax.websocket.*;
-import javax.websocket.server.PathParam;
-import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Timer;
-import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/loginpage/{token}")
+@ServerEndpoint(path = "/qrcodelogin/loginpage",host="0.0.0.0",port=8000,optionConnectTimeoutMillis=6000000)
 @Component//如果是非springboot项目可去除
 public class QRCodeLogin {
     //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
@@ -72,7 +73,8 @@ public class QRCodeLogin {
      *@param session  可选的参数。session为与某个客户端的连接会话，需要通过它来给客户端发送数据
      */
     @OnOpen
-    public void onOpen(@PathParam(value = "token") String token,Session session){
+    public void onOpen(Session session, HttpHeaders headers, ParameterMap parameterMap){
+        String token = parameterMap.getParameter("token");
         this.session = session;
         //建立连接，创建二维码失效定时器 判断二维码是否失效，如果失效，则给web端发送websocket消息，通知二维码失效
         Timer timer = new Timer();
@@ -130,7 +132,8 @@ public class QRCodeLogin {
      */
     public void sendMessage(String message) throws IOException{
         //this.session.getBasicRemote().sendText(message);
-        this.session.getAsyncRemote().sendText(message);
+        this.session.sendText(message);
+        //this.session.getAsyncRemote().sendText(message);
     }
 
     /**
@@ -152,5 +155,34 @@ public class QRCodeLogin {
     @OnError
     public void onError(Session session, Throwable error){
         logger.error("发生错误");
+    }
+
+
+    @OnBinary
+    public void onBinary(Session session, byte[] bytes) {
+        for (byte b : bytes) {
+            System.out.println(b);
+        }
+        session.sendBinary(bytes);
+    }
+
+    @OnEvent
+    public void onEvent(Session session, Object evt) {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
+            switch (idleStateEvent.state()) {
+                case READER_IDLE:
+                    System.out.println("read idle");
+                    break;
+                case WRITER_IDLE:
+                    System.out.println("write idle");
+                    break;
+                case ALL_IDLE:
+                    System.out.println("all idle");
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
